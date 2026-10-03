@@ -10,7 +10,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 #config.ini file
 configObj = configparser.ConfigParser()
-configObj.read("/home/pi/weather-report/configfile.ini")
+configObj.read(os.path.dirname(os.path.realpath(__file__)) + "/configfile.ini")
 OWMAPI = configObj["OWM_API"]
 UserLoc = configObj["Location"]
 
