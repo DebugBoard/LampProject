@@ -3,13 +3,13 @@
 #
 #
 # --- PLEASE READ ---
-# This script is for Pimoroni Inky *wHAT* Displays ONLY
+# This script is for the Waveshare 4.2" e-Paper (V2) display ONLY
 # Please use impression-main.py if you have an Inky Impression
 # --- PLEASE READ ---
 #
 #
 
-import os, sys, time
+import os, sys
 from datetime import datetime, timedelta
 import cond_icons
 
@@ -28,9 +28,8 @@ lon = float(UserLoc["longitude"])
 city = str(UserLoc["city"])
 country = str(UserLoc["country"])
 
-#Inky Libraries
-from inky import InkyWHAT
-from gpiod.line import Value
+#Waveshare Libraries
+from waveshare_epd import epd4in2_V2
 from PIL import Image, ImageFont, ImageDraw
 
 # pyOWM Libraries
@@ -79,8 +78,7 @@ minTemp = int(getTemp["temp_min"])
 getWind = weather.wind(unit="miles_hour")
 curWind = int(getWind["speed"])
 
-inky_display = InkyWHAT("yellow")
-inky_display.set_border(inky_display.WHITE)
+WHITE, BLACK = 0, 1	#palette indices used by the background and icons
 
 Location_ICON = RESOURCES + "icons/location.png"
 LocationIcon = Image.open(Location_ICON)
@@ -154,44 +152,41 @@ x_EightHrCond = 350 - (w_EightHrCond/2)
 
 #draw data and text onto display
 
-draw.text((5, 284),TimeDate.strftime("%m-%d-%Y"), inky_display.WHITE, font2)	#Time
-draw.text((368, 284),TimeDate.strftime("%H:%M"), inky_display.WHITE, font2)	#Date
-draw.text((x_name, 284),projectName, inky_display.WHITE, font2)			#project name
+draw.text((5, 284),TimeDate.strftime("%m-%d-%Y"), WHITE, font2)	#Time
+draw.text((368, 284),TimeDate.strftime("%H:%M"), WHITE, font2)	#Date
+draw.text((x_name, 284),projectName, WHITE, font2)			#project name
 
-draw.text((155, 45), currentTemp, inky_display.BLACK, font_big)				#Current temp
-draw.text((292, 80), currentMaxTemp, inky_display.BLACK, font_small)			#Current max temp
-draw.text((292, 96), currentMinTemp, inky_display.BLACK, font_small)			#Current min temp
-draw.text((292, 50), currentFeelsLike, inky_display.BLACK, font_small)
+draw.text((155, 45), currentTemp, BLACK, font_big)				#Current temp
+draw.text((292, 80), currentMaxTemp, BLACK, font_small)			#Current max temp
+draw.text((292, 96), currentMinTemp, BLACK, font_small)			#Current min temp
+draw.text((292, 50), currentFeelsLike, BLACK, font_small)
 
 #img.paste(LocationIcon, (15, 198)) 
-#draw.text((35, 200), currentLoc, inky_display.BLACK, font_medium2)			#Current location
+#draw.text((35, 200), currentLoc, BLACK, font_medium2)			#Current location
 
-draw.text((x_TwoHrTemp, 226), TwoHrTemp+degreeSign, inky_display.BLACK, font_medium)	#Temp in 2 hrs
-draw.text((x_FourHrTemp, 226),FourHrTemp+degreeSign, inky_display.BLACK, font_medium)	#Temp in 4 hrs
-draw.text((x_SixHrTemp, 226), SixHrTemp+degreeSign, inky_display.BLACK, font_medium)	#Temp in 6 hrs
-draw.text((x_EightHrTemp, 226), EightHrTemp+degreeSign, inky_display.BLACK, font_medium)	#Temp in 8 hrs
+draw.text((x_TwoHrTemp, 226), TwoHrTemp+degreeSign, BLACK, font_medium)	#Temp in 2 hrs
+draw.text((x_FourHrTemp, 226),FourHrTemp+degreeSign, BLACK, font_medium)	#Temp in 4 hrs
+draw.text((x_SixHrTemp, 226), SixHrTemp+degreeSign, BLACK, font_medium)	#Temp in 6 hrs
+draw.text((x_EightHrTemp, 226), EightHrTemp+degreeSign, BLACK, font_medium)	#Temp in 8 hrs
 
-draw.text((x_TwoHrCond, 263), TwoHrCond, inky_display.BLACK, font_tiny)			#Condition in 2 hrs
-draw.text((x_FourHrCond, 263), FourHrCond, inky_display.BLACK, font_tiny)		#Condition in 4 hrs
-draw.text((x_SixHrCond, 263), SixHrCond, inky_display.BLACK, font_tiny)			#Condition in 6 hrs
-draw.text((x_EightHrCond, 263), EightHrCond, inky_display.BLACK, font_tiny)		#Condition in 8 hrs
+draw.text((x_TwoHrCond, 263), TwoHrCond, BLACK, font_tiny)			#Condition in 2 hrs
+draw.text((x_FourHrCond, 263), FourHrCond, BLACK, font_tiny)		#Condition in 4 hrs
+draw.text((x_SixHrCond, 263), SixHrCond, BLACK, font_tiny)			#Condition in 6 hrs
+draw.text((x_EightHrCond, 263), EightHrCond, BLACK, font_tiny)		#Condition in 8 hrs
 
-draw.text((x_TwoHrsTime, 219), TwoHrsTime, inky_display.BLACK, font_tiny)		#Time in 2 hrs
-draw.text((x_FourHrsTime, 219), FourHrsTime, inky_display.BLACK, font_tiny)		#Time in 4 hrs
-draw.text((x_SixHrsTime, 219), SixHrsTime, inky_display.BLACK, font_tiny)		#Time in 6 hrs
-draw.text((x_EightHrsTime, 219), EightHrsTime, inky_display.BLACK, font_tiny)		#Time in 8 hrs
+draw.text((x_TwoHrsTime, 219), TwoHrsTime, BLACK, font_tiny)		#Time in 2 hrs
+draw.text((x_FourHrsTime, 219), FourHrsTime, BLACK, font_tiny)		#Time in 4 hrs
+draw.text((x_SixHrsTime, 219), SixHrsTime, BLACK, font_tiny)		#Time in 6 hrs
+draw.text((x_EightHrsTime, 219), EightHrsTime, BLACK, font_tiny)		#Time in 8 hrs
 
-draw.text((292, 130), currentHumidity, inky_display.BLACK, font_small)			#Current humidity in percentage
-draw.text((292, 158), currentWind, inky_display.BLACK, font_small)		#Current wind speed in MPH
+draw.text((292, 130), currentHumidity, BLACK, font_small)			#Current humidity in percentage
+draw.text((292, 158), currentWind, BLACK, font_small)		#Current wind speed in MPH
 
-draw.text((10, 170), currentDetailCond, inky_display.BLACK, font_medium2)		#Current weather conditions, detailed
+draw.text((10, 170), currentDetailCond, BLACK, font_medium2)		#Current weather conditions, detailed
 img.paste(cond_icons.CurrCondIcon(), (15, 40))                                  #Current Weather Icon
 
-inky_display.set_image(img)
-inky_display.show(busy_wait=False)
-# Poll BUSY directly: the library's edge-based wait can return early on a stale edge,
-# and its 30s timeout is shorter than this panel's ~86s refresh
-deadline = time.time() + 180
-while inky_display._gpio.get_value(inky_display.busy_pin) == Value.ACTIVE and time.time() < deadline:
-	time.sleep(0.1)
-inky_display._send_command(0x10, 0x01)	# deep sleep, as show() does after a successful wait
+img.putpalette([255, 255, 255] + [0, 0, 0] * 255)	#white stays white; black and the icons' yellow become black
+epd = epd4in2_V2.EPD()
+epd.init()
+epd.display(epd.getbuffer(img.convert("1")))
+epd.sleep()
